@@ -30,7 +30,7 @@ local.properties
 *.launch
 
 ## Directory-based project format:
-.idea/
+#.idea/
 # if you remove the above rule, at least ignore the following:
 
 # User-specific stuff:
