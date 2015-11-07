@@ -1,25 +1,25 @@
 package com.zahari.utils.fixer.core;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * Created by zdichev on 03/11/2015.
+ * Created by zdichev on 05/11/2015.
  */
-public class Group implements  IFixField {
+public class FixField  implements  IFixField {
 
-
-
-    private final int groupDelim;
-    private final Set<Integer> fieldsInGroup;
     private final int numValue;
     private final String name;
+    private final FieldType type;
 
 
-    public Group(int numValue, String name, FieldType type,boolean isGroup, int groupDelim, Set<Integer> fieldsInGroup) {
+    private final boolean isGroup;
 
+
+    public FixField(int numValue, String name, FieldType type,boolean isGroup){
+
+        this.numValue = numValue;
+        this.name = name;
+        this.type = type;
+        this.isGroup = isGroup;
     }
-
 
     public int getNumValue() {
         return numValue;
@@ -36,4 +36,7 @@ public class Group implements  IFixField {
     public boolean isGroup() {
         return isGroup;
     }
+
+
+
 }

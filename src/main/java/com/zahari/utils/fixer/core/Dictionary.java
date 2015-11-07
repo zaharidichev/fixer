@@ -16,14 +16,17 @@ import java.util.*;
 public class Dictionary {
 
 
-    public LinkedHashSet<Integer> fields = new LinkedHashSet<Integer>();
-    public Map<Integer,FieldType> fieldsToTypes = new HashMap<Integer,FieldType>();
-    public Map<Integer,String> fieldsToNames = new HashMap<Integer,String>();
 
     public Map<Integer,Group> fieldsToGroups = new HashMap<Integer, Group>();
-    public Map<String,Integer> namesToFields = new  HashMap<String, Integer>();
+    public Map<Integer,FixField> numValueToFixField = new HashMap<Integer, FixField>();
+    public Map<String,FixField> nameToFixField = new HashMap<String, FixField>();
+
     public Set<Integer> fieldsInGroups = new HashSet<Integer>();
     private InputStream in;
+
+
+
+
     private boolean built;
     public static int getFixFieldNumber(Node fieldNode) {
        return  Integer.valueOf(getAttribute(fieldNode, "number"));
@@ -62,7 +65,7 @@ public class Dictionary {
 
                     if (componentFieldNode.getNodeName().equals("group")) {
                         // in case it is a group
-                        Group g = createGroup(componentFieldNode, this.namesToFields);
+                        Group g = createGroup(componentFieldNode, this.nameToFixField);
                         this.fieldsToGroups.put(g.getGroupField(), g);
                         this.fieldsInGroups.addAll(g.getFieldsInGroup());
                     }
@@ -76,7 +79,7 @@ public class Dictionary {
     }
 
 
-    public static Group createGroup(Node groupNode, Map<String, Integer> namesToFields) {
+    public static Group createGroup(Node groupNode, Map<String, FixField> namesToFields) {
 
         String groupName = Dictionary.getAttribute(groupNode, "name");
         int groupField = namesToFields.get(groupName);
@@ -108,33 +111,26 @@ public class Dictionary {
         NodeList fieldsNode;
         fieldsNode = root.getElementsByTagName("fields");
 
-        if(fieldsNode.getLength() != 0) {
+        if (fieldsNode.getLength() != 0) {
             NodeList var22 = fieldsNode.item(0).getChildNodes();
 
-            if(var22.getLength() != 0) {
-                for(int var23 = 0; var23 < var22.getLength(); ++var23) {
+            if (var22.getLength() != 0) {
+                for (int var23 = 0; var23 < var22.getLength(); ++var23) {
                     Node var25 = var22.item(var23);
-                    if(var25.getNodeName().equals("field")) {
+                    if (var25.getNodeName().equals("field")) {
 
                         String name = getFixFieldName(var25);
                         int fieldNumber = getFixFieldNumber(var25);
                         String type = getFixFieldType(var25);
+                        this.numValueToFixField.put(fieldNumber, new FixField(fieldNumber, name, FieldType.fromName(type)));
+                        this.nameToFixField.put(name, new FixField(fieldNumber, name, FieldType.fromName(type)));
 
-                        this.fields.add(fieldNumber);
-                        this.fieldsToNames.put(fieldNumber, name);
-                        this.namesToFields.put(name,fieldNumber);
-                        this.fieldsToTypes.put(fieldNumber, FieldType.fromName(type));
                     }
-
 
                 }
 
-
             }
-
         }
-
-
     }
 
     public void loadMetaData(InputStream inputStream) {
@@ -158,36 +154,14 @@ public class Dictionary {
 
     }
 
-    public FieldType getFieldType(int field) {
-
-        return this.fieldsToTypes.get(field);
-
-    }
-
-    public String getFieldName(int field) {
-
-        return this.fieldsToNames.get(field);
-
-    }
-
-    public Set<Integer> getFieldNames() {
-        return this.fields;
-    }
 
 
     public static boolean isValidXML(Element elem) {
 
-        if(!elem.getNodeName().equals("fix")) {
+        if(!elem.getNodeName().equals("fix") ||
+                !elem.hasAttribute("major")  ||
+                !elem.hasAttribute("minor")) {
             return false;
-            //throw new ConfigError("Could not parse data dictionary file, or no <fix> node found at root");
-        } else if(!elem.hasAttribute("major")) {
-            return false;
-
-            //throw new ConfigError("major attribute not found on <fix>");
-        } else if(!elem.hasAttribute("minor")) {
-            return false;
-
-            //throw new ConfigError("minor attribute not found on <fix>");
         }
         return true;
 
