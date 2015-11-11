@@ -4,9 +4,6 @@ import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -17,12 +14,37 @@ public class Dictionary {
 
 
 
-    public Map<Integer,Group> fieldsToGroups = new HashMap<Integer, Group>();
-    public Map<Integer,FixField> numValueToFixField = new HashMap<Integer, FixField>();
-    public Map<String,FixField> nameToFixField = new HashMap<String, FixField>();
+    public Map<IFixField,FixRepeatingGroup> mainFieldToGroup = new HashMap<IFixField, FixRepeatingGroup>();
+    public Map<IFixField,FixRepeatingGroup> fieldsToGroups = new HashMap<IFixField, FixRepeatingGroup>();
+    public Map<Integer,IFixField> numValueToFixField = new HashMap<Integer, IFixField>();
+    public Map<String,IFixField> nameToFixField = new HashMap<String, IFixField>();
 
-    public Set<Integer> fieldsInGroups = new HashSet<Integer>();
+    public Set<IFixField> fieldsInGroups = new HashSet<IFixField>();
     private InputStream in;
+
+
+    public FixRepeatingGroup getGroupForField(IFixField f) {
+
+        return this.fieldsToGroups.get(f);
+
+    }
+    public FixRepeatingGroup getRepeatingGroup (IFixField filed) {
+        return this.mainFieldToGroup.get(filed);
+    }
+
+
+    public IFixField getField (int field) {
+        return this.numValueToFixField.get(field);
+    }
+
+    public IFixField getField (String fieldNamme) {
+        return this.nameToFixField.get(fieldNamme);
+    }
+
+
+    public boolean isFieldInGroup(IFixField field) {
+        return this.fieldsInGroups.contains(field);
+    }
 
 
 
@@ -34,7 +56,6 @@ public class Dictionary {
     public static String getFixFieldType(Node fieldNode) {
         return  getAttribute(fieldNode, "type");
     }
-
     public static String getFixFieldName(Node fieldNode) {
         return  getAttribute(fieldNode, "name");
     }
@@ -65,9 +86,12 @@ public class Dictionary {
 
                     if (componentFieldNode.getNodeName().equals("group")) {
                         // in case it is a group
-                        Group g = createGroup(componentFieldNode, this.nameToFixField);
-                        this.fieldsToGroups.put(g.getGroupField(), g);
+                        FixRepeatingGroup g = createGroup(componentFieldNode, this.nameToFixField);
+                        this.mainFieldToGroup.put(g.getMainGroupField(), g);
                         this.fieldsInGroups.addAll(g.getFieldsInGroup());
+                        for (IFixField fieldInGroup:g.getFieldsInGroup()) {
+                            this.fieldsToGroups.put(fieldInGroup,g);
+                        }
                     }
 
                 }
@@ -79,11 +103,11 @@ public class Dictionary {
     }
 
 
-    public static Group createGroup(Node groupNode, Map<String, FixField> namesToFields) {
+    public static FixRepeatingGroup createGroup(Node groupNode, Map<String, IFixField> namesToFields) {
 
         String groupName = Dictionary.getAttribute(groupNode, "name");
-        int groupField = namesToFields.get(groupName);
-        Set<Integer> fieldsInGroup = new HashSet<Integer>();
+        IFixField groupField = namesToFields.get(groupName);
+        Set<IFixField> fieldsInGroup = new HashSet<IFixField>();
 
         NodeList fieldNodeList = groupNode.getChildNodes();
 
@@ -93,16 +117,16 @@ public class Dictionary {
             if (fieldNode.getNodeName().equals("field")) {
                 String nameOfField = Dictionary.getAttribute(fieldNode, "name");
                 if (namesToFields.containsKey(nameOfField)) {
-                    int fieldNum = namesToFields.get(nameOfField);
+                    IFixField fieldInGroup = namesToFields.get(nameOfField);
                             if(delim == -1) {
-                                delim = fieldNum;
+                                delim = fieldInGroup.getNumValue();
                             }
-                    fieldsInGroup.add(namesToFields.get(nameOfField));
+                    fieldsInGroup.add(fieldInGroup);
                 }
             }
         }
 
-        return new Group(groupField, delim, fieldsInGroup);
+        return new FixRepeatingGroup(delim, groupField,fieldsInGroup);
     }
 
 
@@ -118,15 +142,12 @@ public class Dictionary {
                 for (int var23 = 0; var23 < var22.getLength(); ++var23) {
                     Node var25 = var22.item(var23);
                     if (var25.getNodeName().equals("field")) {
-
                         String name = getFixFieldName(var25);
                         int fieldNumber = getFixFieldNumber(var25);
                         String type = getFixFieldType(var25);
                         this.numValueToFixField.put(fieldNumber, new FixField(fieldNumber, name, FieldType.fromName(type)));
                         this.nameToFixField.put(name, new FixField(fieldNumber, name, FieldType.fromName(type)));
-
                     }
-
                 }
 
             }
