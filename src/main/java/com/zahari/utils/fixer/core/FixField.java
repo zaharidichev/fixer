@@ -1,5 +1,8 @@
 package com.zahari.utils.fixer.core;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by zdichev on 05/11/2015.
  */
@@ -8,6 +11,7 @@ public class FixField  implements  IFixField {
     private final int numValue;
     private final String name;
     private final FieldType type;
+    private Map<String,String> enumConstToValue;
 
 
 
@@ -17,6 +21,8 @@ public class FixField  implements  IFixField {
         this.numValue = numValue;
         this.name = name;
         this.type = type;
+        this.enumConstToValue = new HashMap<String, String>();
+
     }
 
     public int getNumValue() {
@@ -33,6 +39,14 @@ public class FixField  implements  IFixField {
 
     public boolean isGroup() {
         return false;
+    }
+
+    public void putDescriptionEnum(String enumIdx, String value) {
+        this.enumConstToValue.put(enumIdx,value);
+    }
+
+    public String getDescriptionEnum(String enumIdx) {
+        return this.enumConstToValue.get(enumIdx);
     }
 
     @Override

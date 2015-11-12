@@ -13,4 +13,9 @@ public interface IFixField {
 
     public boolean isGroup();
 
+    public void putDescriptionEnum(String enumIdx, String value);
+
+
+    public String getDescriptionEnum(String enumIdx);
+
 }

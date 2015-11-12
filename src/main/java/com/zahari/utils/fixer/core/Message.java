@@ -1,5 +1,6 @@
 package com.zahari.utils.fixer.core;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import sun.org.mozilla.javascript.internal.json.JsonParser;
 
@@ -10,7 +11,7 @@ import java.util.Random;
  */
 public class Message {
 
-
+    private Random rnd = new Random();
     private String[] arr;
     private int extractorPtr = 0;
     private JSONObject obj = new JSONObject();
@@ -22,9 +23,7 @@ public class Message {
     }
 
 
-
-
-    public void parseGroup(Dictionary dd,FixRepeatingGroup gg,FixFIeldEntry ffe,JSONObject parent) {
+    public void parseGroup(Dictionary dd, FixRepeatingGroup gg, FixFIeldEntry field, JSONArray groupsContainer) {
 
 
         JSONObject group = null;
@@ -34,42 +33,46 @@ public class Message {
 
 
         while (inGroupParse) {
-            ffe = this.extractField(dd);
-            if (ffe.getDefinition().getNumValue() == firstField) {
+            field = this.extractField(dd);
+            if (field == null) {
+                break; // stop parsing
+            }
 
+            int tag = field.getDefinition().getNumValue();
+            if (tag == firstField) {
                 if (group != null) {
-                    parent.put(gg.getName(), group);
+                    groupsContainer.add(group);
                 }
 
                 group = new JSONObject();
-                group.put(ffe.getDefinition().getName() + System.currentTimeMillis(), ffe.getValueAsString());
+                group.put(field.getDefinition().getName(), field.getValueAsString());
                 firstFieldFound = true;
-            }
 
+                if (dd.getRepeatingGroup(field.getDefinition()) != null) {
 
-            else if (dd.getRepeatingGroup(ffe.getDefinition()) != null) {
-                this.parseGroup(dd, dd.getRepeatingGroup(ffe.getDefinition()), ffe,group);
-            }
+                   //this.parseGroup(dd, dd.getRepeatingGroup(field.getDefinition()), field, group);
+                    //return;
 
+                }
+            } else if (dd.getRepeatingGroup(field.getDefinition()) != null) {
 
+                JSONArray newCOntainer = new JSONArray();
 
+                group.put(field.getDefinition().getName(), newCOntainer);
+                this.parseGroup(dd, dd.getRepeatingGroup(field.getDefinition()), field, newCOntainer);
 
-            else if (gg.getFieldsInGroup().contains(ffe.getDefinition())) {
+                //this.parseGroup(dd, dd.getRepeatingGroup(field.getDefinition()), field, group);
+                //return;
+            } else if (gg.getFieldsInGroup().contains(field.getDefinition())) {
 
                 if (group != null) {
-                    group.put(ffe.getDefinition().getName() + System.currentTimeMillis(), ffe.getValueAsString());
+                    group.put(field.getDefinition().getName(), field.getValueAsString());
                 }
 
-            }
+            } else {
 
-            else {
 
-                if (group != null) {
-
-                    parent.put(ffe.getValueAsString()  + System.currentTimeMillis(), group);
-                }
-
-                pushedBack = ffe;
+                pushedBack = field;
                 inGroupParse = false;
 
             }
@@ -77,30 +80,42 @@ public class Message {
 
         }
 
+
+        if (group != null) {
+
+            groupsContainer.add(group);
+        }
+
     }
 
 
-        public void parseMessage(Dictionary dd) {
+    public void parseMessage(Dictionary dd) {
 
-        for (FixFIeldEntry field = this.extractField(dd); field != null; field = this.extractField(dd)) {
+        FixFIeldEntry field = this.extractField(dd);
+
+        while (field != null) {
 
 
             this.obj.put(field.getDefinition().getName(), field.getValueAsString());
 
             FixRepeatingGroup gg = dd.getRepeatingGroup(field.getDefinition());
-            if(gg != null) {
-                this.obj.put(field.getDefinition().getName(),field.getValueAsString());
-                this.parseGroup(dd,gg,field,this.obj);
+            if (gg != null) {
+
+                JSONArray list = new JSONArray();
+
+                this.obj.put(field.getDefinition().getName(), list);
+                this.parseGroup(dd, gg, field, list);
 
             }
 
+            field = this.extractField(dd);
         }
 
         System.out.println(obj.toJSONString());
 
     }
 
-    private FixFIeldEntry extractField(Dictionary dd) {
+    private FixFIeldEntry  extractField(Dictionary dd) {
 
         if(this.pushedBack != null) {
 
@@ -118,6 +133,12 @@ public class Message {
         String valueString = token.split("=")[1];
         int tagNum = Integer.parseInt(tagString);
         IFixField f = dd.getField(tagNum);
+
+        String val = f.getDescriptionEnum(valueString);
+        if(val != null) {
+            valueString = val;
+        }
+
         return new FixFIeldEntry(f,valueString);
     }
 

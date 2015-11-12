@@ -145,8 +145,26 @@ public class Dictionary {
                         String name = getFixFieldName(var25);
                         int fieldNumber = getFixFieldNumber(var25);
                         String type = getFixFieldType(var25);
-                        this.numValueToFixField.put(fieldNumber, new FixField(fieldNumber, name, FieldType.fromName(type)));
-                        this.nameToFixField.put(name, new FixField(fieldNumber, name, FieldType.fromName(type)));
+
+                        FixField field = new FixField(fieldNumber, name, FieldType.fromName(type));
+
+                        this.numValueToFixField.put(fieldNumber, field);
+                        this.nameToFixField.put(name, field);
+
+                        if(var25.getChildNodes().getLength() > 0) {
+                            for(int i = 0; i < var25.getChildNodes().getLength(); i++ ) {
+                                Node descriptionNode = var25.getChildNodes().item(i);
+
+                                if(descriptionNode.getNodeName().equals("value")){
+                                    String enumIdx = getAttribute(descriptionNode,"enum");
+                                    String value =  getAttribute(descriptionNode,"description");
+                                    field.putDescriptionEnum(enumIdx,value);
+                                }
+
+                            }
+                        }
+
+
                     }
                 }
 
