@@ -1,68 +1,32 @@
 package com.zahari.utils.fixer.core;
 
-import com.sun.corba.se.spi.orbutil.fsm.Input;
-import org.json.simple.JSONArray;
+import com.zahari.utils.fixer.core.parser.Dictionary;
+import com.zahari.utils.fixer.core.parser.MessageParser;
+import com.zahari.utils.fixer.core.parser.types.RawFixMessage;
 import org.json.simple.JSONObject;
-import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 
 /**
  * Created by zdichev on 03/11/2015.
  */
 public class Runner {
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
-
-
-/*        File fXmlFile = new File("C:\\Users\\zdichev\\personal\\fixer\\src\\main\\resources\\MADTFIX50SP2.xml");
-        Dictionary d = new Dictionary();
-        d.parse("C:\\Users\\zdichev\\personal\\fixer\\src\\main\\resources\\MADTFIX50SP2.xml");
-        for(Integer fl: d.getFieldNames()) {
-            System.out.println(fl + " " + d.getFieldName(fl) + " " + d.getFieldType(fl));
-        }*/
-
+    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException, ParseException {
+        String s = "8=FIXT.1.1\u00019=1058\u000135=8\u000134=6\u000149=MAIOI\u000152=20151120-14:15:27.857\u000156=MILLUKIOI\u000137=3260258\u0001527=1064299-0\u000111=89092\u0001453=6\u0001448=silmbergm\u0001447=D\u0001452=11\u0001802=1\u0001523=Marcus Silmberg\u0001803=9\u0001448=MIERGB21\u0001447=B\u0001452=13\u0001448=Millennium Advisors, LLC, London Branch\u0001447=D\u0001452=13\u0001448=mktxukdlr\u0001447=D\u0001452=12\u0001802=1\u0001523=MKTX UK DLR\u0001803=9\u0001448=MAUPGB21\u0001447=B\u0001452=1\u0001448=MarketAxess Europe Ltd (Dealer)\u0001447=D\u0001452=1\u00015487=1\u000117=3260258-h80vk\u0001150=I\u000139=2\u00011=MKTX_EUROPE\u0001660=99\u0001581=1\u000164=20151125\u000155=[N/A]\u000148=XS1114477133\u000122=4\u00016360=Unassigned\u0001460=3\u00011227=BOND\u000129703=EUEU\u0001167=EUCORP\u0001762=EURO_EUR\u0001541=20220926\u0001225=20140925\u0001223=0.01526\u0001106=BP CAPITAL MARK\u0001107=BPLN  1.526  9/26/22 (URegS)\u0001873=20140925\u000154=2\u000138=100000\u00016655=100000\u00019872=1\u0001423=1\u000144=102.786\u000115=EUR\u0001151=100000\u000114=0\u000175=20151120\u000160=20151120-14:15:27\u0001662=109.9115\u0001663=1\u0001699=DE0001135499\u0001761=4\u00016707=0.036\u0001235=MATURITY\u0001236=1.101\u00015961=EU Price\u0001381=102786.00\u0001157=60\u0001159=250.16\u0001118=103036.16\u00015528=DFLT\u0001120=EUR\u0001136=2\u0001137=0\u0001138=EUR\u0001139=8\u0001891=0\u0001137=0.00\u0001139=8\u0001891=2\u00015627=Traded\u00015630=NONE\u000120117=3260258\u00015626=5\u000120120=MarketList-Orders-Open\u00015215=N\u00015625=1\u000121031=N\u000121032=N\u000110=083\u0001";
 
         String fixMessage = "8=FIXT.1.1\u00019=835\u000135=AI\u000134=426\u000149=MA\u000152=20151103-10:26:22.525\u000156=MILLUKTRD\u00011=FIBI_ECME\u000115=EUR\u000122=4\u000138=1000000\u000148=XS1206540806\u000154=2\u000155=[N/A]\u000158=MILL (jfeerick01, Joe Feerick) passes \u000160=20151103-10:26:22\u000164=20151105\u0001106=VW INTNL FINANCE\u0001107=VW 2.500 3/20/2022-49 c (URegS)\u0001167=EUCORP\u0001223=0.02500000\u0001225=20150320\u0001297=11\u0001423=1\u0001460=3\u0001541=20490320\u0001581=1\u0001660=99\u0001873=20150320\u00011227=BOND\u00015215=Y\u00015487=6\u00015625=1\u00015627=Passed\u00015630=None\u00015961=EU Price\u00016360=Autos\u000120117=15634437\u000120120=C2D-RFQ-Open\u000121031=N\u000121032=N\u000129703=EUEU\u0001453=6\u0001448=skordova\u0001447=D\u0001452=11\u0001802=2\u0001523=kordova.s@fibi.co.il\u0001803=8\u0001523=Shmulik Kordova\u0001803=9\u0001448=The First International Bank of Israel\u0001447=D\u0001452=13\u0001448=jfeerick01\u0001447=D\u0001452=37\u0001802=1\u0001523=Joe Feerick\u0001803=9\u0001448=amcaleavey\u0001447=D\u0001452=29\u0001802=1\u0001523=Andrew McAleavey (Sales)\u0001803=9\u0001448=MIERGB21\u0001447=B\u0001452=17\u0001448=Millennium Europe Limited\u0001447=D\u0001452=17\u000110=057\u0001";
-        String message2 = "8=FIXT.1.1\u00019=835\u000135=AI\u000134=426\u000149=MA\u0001453=6\u0001448=skordova\u0001447=D\u0001452=11\u0001802=2\u0001523=kordova.s@fibi.co.il\u0001803=8\u0001523=Shmulik Kordova\u0001803=9\u0001448=The First International Bank of Israel\u0001447=D\u0001452=13\u000110=057\u0001";
-        String message3 =  "8=FIXT.1.1\u00019=835\u000135=AI\u000134=426\u000149=MA\u0001453=6\u0001448=skordova\u0001447=D\u0001452=11\u0001448=The First International Bank of Israel\u0001447=D\u0001452=13\u000110=057\u0001";
-
-        String parseMessageWithOnlyOneLevelSubGroup = "8=FIXT.1.1\u00019=835\u000135=AI\u000134=426\u000149=MA\u000152=20151103-10:26:22.525\u000156=MILLUKTRD\u00011=FIBI_ECME\u000115=EUR\u000122=4\u000138=1000000\u000148=XS1206540806\u000154=2\u000155=[N/A]\u000158=MILL (jfeerick01, Joe Feerick) passes \u000160=20151103-10:26:22\u000164=20151105\u0001106=VW INTNL FINANCE\u0001107=VW 2.500 3/20/2022-49 c (URegS)\u0001167=EUCORP\u0001223=0.02500000\u0001225=20150320\u0001297=11\u0001423=1\u0001460=3\u0001541=20490320\u0001581=1\u0001660=99\u0001873=20150320\u00011227=BOND\u00015215=Y\u00015487=6\u00015625=1\u00015627=Passed\u00015630=None\u00015961=EU Price\u00016360=Autos\u000120117=15634437\u000120120=C2D-RFQ-Open\u000121031=N\u000121032=N\u000129703=EUEU\u0001453=6\u0001448=skordova\u0001447=D\u0001452=11\u0001448=The First International Bank of Israel\u0001447=D\u0001452=13\u0001448=jfeerick01\u0001447=D\u0001452=37\u0001448=amcaleavey\u0001447=D\u0001452=29\u0001448=MIERGB21\u0001447=B\u0001452=17\u0001448=Millennium Europe Limited\u0001447=D\u0001452=17\u000110=057\u0001";
-
         InputStream file = new FileInputStream(new File("C:\\Users\\zdichev\\repos\\fixer\\src\\main\\resources\\MADTFIX50SP2.xml"));
-
         Dictionary d = new Dictionary(file);
         d.build();
-        Message m = new Message(fixMessage);
-        m.parseMessage( d);
-
-        //
-        // System.out.println(d);
-
-/*    JSONObject obj = new JSONObject();
-    obj.put("name", "mkyong.com");
-    obj.put("age", new Integer(100));
-
-    JSONArray list = new JSONArray();
-    list.add("msg 1");
-    list.add("msg 2");
-    list.add("msg 3");
-
-        JSONObject obj2 = new JSONObject();
-
-
-        obj.put("messages", list);
-
-        obj2.put("name", "efdwefwefwe.com");
-        obj2.put("age", new Integer(200));
-        obj.put("secondObj",obj2);
-    System.out.print(obj.toJSONString());*/
+        RawFixMessage m = new RawFixMessage(s,d,"MAOT");
+       JSONObject message =  MessageParser.parseMessageIntoJson(m);
+       System.out.println(message.toJSONString());
 
 }
 

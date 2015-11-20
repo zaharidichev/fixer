@@ -1,4 +1,7 @@
-package com.zahari.utils.fixer.core;
+package com.zahari.utils.fixer.core.parser.types;
+
+
+import com.zahari.utils.fixer.core.parser.types.FieldType;
 
 /**
  * Created by zdichev on 05/11/2015.

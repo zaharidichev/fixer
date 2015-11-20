@@ -1,6 +1,5 @@
-package com.zahari.utils.fixer.core;
+package com.zahari.utils.fixer.core.parser.types;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -11,7 +10,7 @@ public class FixRepeatingGroup  {
 
 
     private final int groupDelim;
-    private  final  IFixField mainGroupField;
+    private  final IFixField mainGroupField;
     private final Set<IFixField> fieldsInGroup;
 
     public FixRepeatingGroup(int groupDelim, IFixField mainGroupField, Set<IFixField> fieldsInGroup) {

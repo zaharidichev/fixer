@@ -1,4 +1,5 @@
-package com.zahari.utils.fixer.core;
+package com.zahari.utils.fixer.core.parser.types;
+
 
 /**
  * Created by zdichev on 11/11/2015.

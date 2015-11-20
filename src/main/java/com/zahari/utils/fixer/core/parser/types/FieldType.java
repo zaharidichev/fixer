@@ -1,4 +1,4 @@
-package com.zahari.utils.fixer.core;
+package com.zahari.utils.fixer.core.parser.types;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,7 +26,7 @@ public class FieldType {
     public static final FieldType Exchange = new FieldType("EXCHANGE");
     public static final FieldType UtcTimeStamp = new FieldType("UTCTIMESTAMP", Date.class);
     public static final FieldType Boolean = new FieldType("BOOLEAN", Boolean.class);
-    public static final FieldType LocalMktDate = new FieldType("LOCALMKTDATE");
+    public static final FieldType LocalMktDate = new FieldType("LOCALMKTDATE",Date.class);
     public static final FieldType Data = new FieldType("DATA");
     public static final FieldType Float = new FieldType("FLOAT", Double.class);
     public static final FieldType PriceOffset = new FieldType("PRICEOFFSET", Double.class);

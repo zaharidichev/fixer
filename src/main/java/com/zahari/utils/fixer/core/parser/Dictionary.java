@@ -1,5 +1,11 @@
-package com.zahari.utils.fixer.core;
+package com.zahari.utils.fixer.core.parser;
 
+
+
+import com.zahari.utils.fixer.core.parser.types.FieldType;
+import com.zahari.utils.fixer.core.parser.types.FixField;
+import com.zahari.utils.fixer.core.parser.types.FixRepeatingGroup;
+import com.zahari.utils.fixer.core.parser.types.IFixField;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -129,6 +135,37 @@ public class Dictionary {
         return new FixRepeatingGroup(delim, groupField,fieldsInGroup);
     }
 
+    private final Map<String, Node> components = new HashMap();
+
+
+    public void loadComponents(Element root) {
+
+
+        NodeList components =  root.getElementsByTagName("components");
+        if (components.getLength() != 0) {
+
+            NodeList childNodes = components.item(0).getChildNodes();
+
+            if (childNodes.getLength() != 0) {
+
+                for (int var23 = 0; var23 < childNodes.getLength(); ++var23) {
+                    Node childNode = childNodes.item(var23);
+                    if (childNode.getNodeName().equals("component")) {
+                        String name = this.getAttribute(childNode, "name");
+                        if(name != null) {
+                            this.components.put(name, childNode);
+                        }
+                    }
+
+                    }
+
+
+            }
+
+        }
+
+
+    }
 
     public void loadFields(Element root) {
 
@@ -143,6 +180,8 @@ public class Dictionary {
                     Node var25 = var22.item(var23);
                     if (var25.getNodeName().equals("field")) {
                         String name = getFixFieldName(var25);
+
+
                         int fieldNumber = getFixFieldNumber(var25);
                         String type = getFixFieldType(var25);
 
@@ -187,6 +226,7 @@ public class Dictionary {
         Element var21 = document.getDocumentElement();
 
         if (isValidXML(var21)) {
+            this.loadComponents(var21);
             this.loadFields(var21);
             this.loadGroups(var21);
         }

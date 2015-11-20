@@ -1,4 +1,4 @@
-package com.zahari.utils.fixer.core;
+package com.zahari.utils.fixer.core.parser.types;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Created by zdichev on 05/11/2015.
  */
-public class FixField  implements  IFixField {
+public class FixField  implements IFixField {
 
     private final int numValue;
     private final String name;
